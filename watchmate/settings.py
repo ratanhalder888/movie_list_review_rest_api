@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'rest_framework.authtoken',
     'django_filters',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +129,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
 #     'DEFAULT_PERMISSION_CLASSES': [
 #         'rest_framework.permissions.IsAuthenticated',
 #     ]
@@ -156,6 +159,14 @@ REST_FRAMEWORK = {
 
 }
 
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Watch-List API',
+    'DESCRIPTION': 'A simple Platform, Movie, review API that helps us learn Django Rest Framework',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 
 SIMPLE_JWT = {

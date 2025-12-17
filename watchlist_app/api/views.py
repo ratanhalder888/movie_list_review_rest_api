@@ -109,7 +109,7 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class StreamPlatformVS(viewsets.ModelViewSet):
-    queryset = StreamPlatform.objects.prefetch_related('watchlist_set__review_set__review_user').all()
+    queryset = StreamPlatform.objects.prefetch_related('watchlist_set__review_set__review_user')
     serializer_class = StreamPlatformSerializer
     permission_classes = [IsAdminOrReadOnly]
     

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
-
+from rest_framework.test import force_authenticate
 from watchlist_app.api import serializers
 from watchlist_app import models
 
@@ -75,3 +75,51 @@ class WatchListTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(models.WatchList.objects.count(), 1)
         self.assertEqual(models.WatchList.objects.get().title, 'Example Movie')
+
+
+class ReviewTestCase(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="example", password="Password@123")
+        self.token = Token.objects.get(user__username=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+        self.stream = models.StreamPlatform.objects.create(name="Netflix",
+                                                           about='#1 Streaming Platform',
+                                                           website='https://netflix.com')
+        self.watchlist = models.WatchList.objects.create(platform=self.stream,
+                                                         title="Example Movie",
+                                                         storyline="Example Story",
+                                                         active=True)
+        
+    def test_review_create(self):
+        data = {
+            "review_user" : self.user.id,
+            "rating" : 5,
+            "description" : "Great Movie",
+            "watchlist" : self.watchlist.id,
+            "active" : True,
+        }
+        url = reverse('review-create', args=(self.watchlist.id,))
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(models.Review.objects.count(), 1)
+        self.assertEqual(models.Review.objects.get().rating, 5)
+
+
+        url = reverse('review-create', args=(self.watchlist.id,))
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+    def test_review_create_unauth(self):
+        data = {
+            "review_user" : self.user.id,
+            "rating" : 5,
+            "description" : "Great Movie",
+            "watchlist" : self.watchlist.id,
+            "active" : True,
+        }
+        self.client.force_authenticate(user=None)
+        url = reverse('review-create', args=(self.watchlist.id,))
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

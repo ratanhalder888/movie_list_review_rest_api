@@ -1,0 +1,25 @@
+services:
+  web:  # This is my Django Application
+    build: .    # Look for the Dockerfile in the current directory to build this
+    volumes:
+      - .:/app  # "Hot Reloading": Any change I make in my code locally
+                # immediately reflects inside the container WITHOUT rebuilding.
+    ports:
+      - "8000:8000"  # Map port 8000 of the container to port 8000 of the host
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env
+    depends_on:
+      - db    # Wait for the database to be ready before starting the application
+
+  db:  # This is my Postgres Database
+    image: postgres:15-alpine    # # Use a pre-built official image (no Dockerfile needed)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=watchmate
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  postgres_data:  # This is my Postgres Database

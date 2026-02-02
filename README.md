@@ -1,1 +1,2 @@
-# drf_udemy
+# Django rest framework
+Movies, lists, reviews

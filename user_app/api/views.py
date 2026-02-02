@@ -24,15 +24,15 @@ def registration_view(request):
             data['email'] = account.email
 
             # TOKEN AUTHENTICATION
-            token = Token.objects.get(user=account).key
-            data['token'] = token
+            # token = Token.objects.get(user=account).key
+            # data['token'] = token
 
             # JWT AUTHENTICATION
-            # refresh = RefreshToken.for_user(account)
-            # data['token'] = {
-            #                     'refresh': str(refresh),
-            #                     'access': str(refresh.access_token),
-            #                 }
+            refresh = RefreshToken.for_user(account)
+            data['token'] = {
+                                'refresh': str(refresh),
+                                'access': str(refresh.access_token),
+                            }
         else:
             data = serializer.errors
         return Response(data, status=status.HTTP_201_CREATED)
@@ -51,8 +51,12 @@ class RegistrationView(APIView):
             data['username'] = account.username
             data['email'] = account.email
 
-            token = Token.objects.get(user=account).key
-            data['token'] = token
+            # JWT AUTHENTICATION
+            refresh = RefreshToken.for_user(account)
+            data['token'] = {
+                                'refresh': str(refresh),
+                                'access': str(refresh.access_token),
+                            }
         else:
             data = serializer.errors
         return Response(data, status=status.HTTP_201_CREATED)
@@ -62,8 +66,9 @@ class RegistrationView(APIView):
 def logout_view(request):
 
     if request.method == 'POST':
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
+        # JWT logout is typically handled on the frontend by deleting the token.
+        # If blacklisting is enabled, you can blacklist the refresh token here.
+        return Response({"message": "Logout successful (Client-side token removal recommended)"}, status=status.HTTP_200_OK)
     
 
 class LogoutView(APIView):
@@ -79,12 +84,10 @@ class LogoutView(APIView):
         Handles the logout action.
         """
         try:
-            # Delete the user's current authentication token
-            # The 'request.user' is guaranteed to be a User instance due to IsAuthenticated permission
-            request.user.auth_token.delete()
-            
+            # JWT is stateless; logout is handled by the client.
+            # If blacklisting is used, the refresh token should be blacklisted.
             return Response(
-                {"message": "Successfully logged out."}, 
+                {"message": "Successfully logged out (Client-side token removal recommended)."}, 
                 status=status.HTTP_200_OK
             )
             

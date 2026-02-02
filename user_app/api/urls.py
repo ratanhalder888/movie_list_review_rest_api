@@ -11,7 +11,7 @@ from user_app.api.views import (registration_view, RegistrationView,
 
 
 urlpatterns = [
-    path('login/', obtain_auth_token, name='login'),
+    path('login/', TokenObtainPairView.as_view(), name='login'),
     path('register/', registration_view, name='register'),
     # path('register/', RegistrationView.as_view(), name='register'),
     # path('logout/', logout_view, name='logout'),
